@@ -87,7 +87,8 @@ public class Alarm implements Serializable {
 	private Boolean vibrate = true;
 	private String alarmName = "Alarm Clock";
 	private Difficulty difficulty = Difficulty.EASY;
-	
+	private int duration = 0; //alarm duration in seconds
+
 	public Alarm() {
 
 	}
@@ -264,6 +265,23 @@ public class Alarm implements Serializable {
 
 	public void setDifficulty(Difficulty difficulty) {
 		this.difficulty = difficulty;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
+	}
+
+	public void setDuration(String duration) {
+		try {
+			this.duration = Integer.valueOf(duration);
+		}
+		catch (NumberFormatException ex) {
+			this.duration = 0;
+		}
 	}
 
 	public int getId() {

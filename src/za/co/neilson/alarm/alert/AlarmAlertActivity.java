@@ -20,6 +20,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -47,7 +48,9 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 	private TextView problemView;
 	private TextView answerView;
 	private String answerString;
-	
+
+	private Handler handler = new Handler();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,6 +137,15 @@ public class AlarmAlertActivity extends Activity implements OnClickListener {
 				PhoneStateListener.LISTEN_CALL_STATE);
 
 		// Toast.makeText(this, answerString, Toast.LENGTH_LONG).show();
+
+		if(alarm.getDuration()>0) {
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					finish();
+				}
+			}, alarm.getDuration() * 1000);
+		}
 
 		startAlarm();
 

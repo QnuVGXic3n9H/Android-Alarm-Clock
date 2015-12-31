@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBar;
+import android.text.InputType;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -109,6 +110,7 @@ public class AlarmPreferencesActivity extends BaseActivity {
 					alarmPreference.setValue(checked);
 					break;
 				case STRING:
+				case INTEGER:
 
 					alert = new AlertDialog.Builder(AlarmPreferencesActivity.this);
 
@@ -120,6 +122,9 @@ public class AlarmPreferencesActivity extends BaseActivity {
 
 					input.setText(alarmPreference.getValue().toString());
 
+					if(alarmPreference.getType()== AlarmPreference.Type.INTEGER)
+						input.setInputType(InputType.TYPE_CLASS_NUMBER);
+
 					alert.setView(input);
 					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int whichButton) {
@@ -128,6 +133,9 @@ public class AlarmPreferencesActivity extends BaseActivity {
 
 							if (alarmPreference.getKey() == Key.ALARM_NAME) {
 								alarm.setAlarmName(alarmPreference.getValue().toString());
+							}
+							else if (alarmPreference.getKey() == Key.ALARM_DURATION) {
+								alarm.setDuration(alarmPreference.getValue().toString());
 							}
 
 							alarmPreferenceListAdapter.setMathAlarm(getMathAlarm());

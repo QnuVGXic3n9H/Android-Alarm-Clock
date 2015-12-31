@@ -11,6 +11,7 @@
  */
 package za.co.neilson.alarm.preferences;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,16 @@ public class AlarmPreferenceListAdapter extends BaseAdapter implements Serializa
 	    setMathAlarm(alarm);		
 	}
 
+	private void writeObject(java.io.ObjectOutputStream out)
+			throws IOException {
+		out.writeObject(preferences);
+	}
+
+	private void readObject(java.io.ObjectInputStream in)
+			throws IOException, ClassNotFoundException {
+		preferences = (List<AlarmPreference>) in.readObject();
+	}
+
 	@Override
 	public int getCount() {
 		return preferences.size();
@@ -141,7 +152,7 @@ public class AlarmPreferenceListAdapter extends BaseAdapter implements Serializa
 					alarm.setAlarmTime((String) preference.getValue());
 					break;
 				case ALARM_DIFFICULTY:
-					alarm.setDifficulty(Alarm.Difficulty.valueOf((String)preference.getValue()));
+					alarm.setDifficulty(Alarm.Difficulty.valueOf((String) preference.getValue()));
 					break;
 				case ALARM_TONE:
 					alarm.setAlarmTonePath((String) preference.getValue());
@@ -151,6 +162,9 @@ public class AlarmPreferenceListAdapter extends BaseAdapter implements Serializa
 					break;
 				case ALARM_REPEAT:
 					alarm.setDays((Alarm.Day[]) preference.getValue());
+					break;
+				case ALARM_DURATION:
+					alarm.setDuration((Integer) preference.getValue());
 					break;
 			}
 		}
@@ -176,7 +190,11 @@ public class AlarmPreferenceListAdapter extends BaseAdapter implements Serializa
 			preferences.add(new AlarmPreference(AlarmPreference.Key.ALARM_TONE, "Ringtone", getAlarmTones()[0],alarmTones, null, Type.LIST));
 		}
 		
-		preferences.add(new AlarmPreference(AlarmPreference.Key.ALARM_VIBRATE, "Vibrate",null, null, alarm.getVibrate(), Type.BOOLEAN));
+		preferences.add(new AlarmPreference(AlarmPreference.Key.ALARM_VIBRATE, "Vibrate", null, null, alarm.getVibrate(), Type.BOOLEAN));
+
+		int duration = alarm.getDuration();
+		String durationDesc = duration==0 ? "Unlimited" : String.format("%d seconds", duration);
+		preferences.add(new AlarmPreference(AlarmPreference.Key.ALARM_DURATION, "Duration",durationDesc, null, alarm.getDuration(), Type.INTEGER));
 	}
 
 	

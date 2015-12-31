@@ -40,7 +40,7 @@ public class Database extends SQLiteOpenHelper {
 	static SQLiteDatabase database = null;
 	
 	static final String DATABASE_NAME = "DB";
-	static final int DATABASE_VERSION = 1;
+	static final int DATABASE_VERSION = 2;
 	
 	public static final String ALARM_TABLE = "alarm";
 	public static final String COLUMN_ALARM_ID = "_id";
@@ -50,8 +50,9 @@ public class Database extends SQLiteOpenHelper {
 	public static final String COLUMN_ALARM_DIFFICULTY = "alarm_difficulty";
 	public static final String COLUMN_ALARM_TONE = "alarm_tone";
 	public static final String COLUMN_ALARM_VIBRATE = "alarm_vibrate";
-	public static final String COLUMN_ALARM_NAME = "alarm_name";	
-	
+	public static final String COLUMN_ALARM_NAME = "alarm_name";
+	public static final String COLUMN_ALARM_DURATION = "alarm_duration";
+
 	public static void init(Context context) {
 		if (null == instance) {
 			instance = new Database(context);
@@ -94,7 +95,8 @@ public class Database extends SQLiteOpenHelper {
 		cv.put(COLUMN_ALARM_TONE, alarm.getAlarmTonePath());
 		cv.put(COLUMN_ALARM_VIBRATE, alarm.getVibrate());
 		cv.put(COLUMN_ALARM_NAME, alarm.getAlarmName());
-		
+		cv.put(COLUMN_ALARM_DURATION, alarm.getDuration());
+
 		return getDatabase().insert(ALARM_TABLE, null, cv);
 	}
 	public static int update(Alarm alarm) {
@@ -118,7 +120,8 @@ public class Database extends SQLiteOpenHelper {
 		cv.put(COLUMN_ALARM_TONE, alarm.getAlarmTonePath());
 		cv.put(COLUMN_ALARM_VIBRATE, alarm.getVibrate());
 		cv.put(COLUMN_ALARM_NAME, alarm.getAlarmName());
-					
+		cv.put(COLUMN_ALARM_DURATION, alarm.getDuration());
+
 		return getDatabase().update(ALARM_TABLE, cv, "_id=" + alarm.getId(), null);
 	}
 	public static int deleteEntry(Alarm alarm){
@@ -143,7 +146,8 @@ public class Database extends SQLiteOpenHelper {
 				COLUMN_ALARM_DIFFICULTY,
 				COLUMN_ALARM_TONE,
 				COLUMN_ALARM_VIBRATE,
-				COLUMN_ALARM_NAME
+				COLUMN_ALARM_NAME,
+				COLUMN_ALARM_DURATION
 				};
 		Cursor c = getDatabase().query(ALARM_TABLE, columns, COLUMN_ALARM_ID+"="+id, null, null, null,
 				null);
@@ -176,8 +180,9 @@ public class Database extends SQLiteOpenHelper {
 						
 			alarm.setDifficulty(Difficulty.values()[c.getInt(5)]);
 			alarm.setAlarmTonePath(c.getString(6));
-			alarm.setVibrate(c.getInt(7)==1);
+			alarm.setVibrate(c.getInt(7) == 1);
 			alarm.setAlarmName(c.getString(8));
+			alarm.setDuration(c.getInt(9));
 		}
 		c.close();
 		return alarm;
@@ -193,7 +198,8 @@ public class Database extends SQLiteOpenHelper {
 				COLUMN_ALARM_DIFFICULTY,
 				COLUMN_ALARM_TONE,
 				COLUMN_ALARM_VIBRATE,
-				COLUMN_ALARM_NAME
+				COLUMN_ALARM_NAME,
+				COLUMN_ALARM_DURATION,
 				};
 		return getDatabase().query(ALARM_TABLE, columns, null, null, null, null,
 				null);
@@ -214,13 +220,19 @@ public class Database extends SQLiteOpenHelper {
 				+ COLUMN_ALARM_DIFFICULTY + " INTEGER NOT NULL, "
 				+ COLUMN_ALARM_TONE + " TEXT NOT NULL, " 
 				+ COLUMN_ALARM_VIBRATE + " INTEGER NOT NULL, " 
-				+ COLUMN_ALARM_NAME + " TEXT NOT NULL)");
+				+ COLUMN_ALARM_NAME + " TEXT NOT NULL, "
+				+ COLUMN_ALARM_DURATION + " INTEGER NOT NULL)");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + ALARM_TABLE);
-		onCreate(db);
+		if(newVersion==DATABASE_VERSION && oldVersion<DATABASE_VERSION) {
+			db.execSQL("ALTER TABLE " + ALARM_TABLE + " ADD COLUMN " + COLUMN_ALARM_DURATION + " INTEGER NOT NULL DEFAULT 0");
+		}
+		else {
+			db.execSQL("DROP TABLE IF EXISTS " + ALARM_TABLE);
+			onCreate(db);
+		}
 	}
 
 	public static List<Alarm> getAll() {
@@ -237,6 +249,7 @@ public class Database extends SQLiteOpenHelper {
 				// COLUMN_ALARM_TONE,
 				// COLUMN_ALARM_VIBRATE,
 				// COLUMN_ALARM_NAME
+				// COLUMN_ALARM_DURATION
 
 				Alarm alarm = new Alarm();
 				alarm.setId(cursor.getInt(0));
@@ -267,7 +280,8 @@ public class Database extends SQLiteOpenHelper {
 				alarm.setAlarmTonePath(cursor.getString(5));
 				alarm.setVibrate(cursor.getInt(6) == 1);
 				alarm.setAlarmName(cursor.getString(7));
-				
+				alarm.setDuration(cursor.getInt(8));
+
 				alarms.add(alarm);
 
 			} while (cursor.moveToNext());			

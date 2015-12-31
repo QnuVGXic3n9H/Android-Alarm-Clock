@@ -11,7 +11,9 @@
  */
 package za.co.neilson.alarm.preferences;
 
-public class AlarmPreference {
+import java.io.Serializable;
+
+public class AlarmPreference implements Serializable {
 	
 	public enum Key{
 		ALARM_NAME,
@@ -20,7 +22,8 @@ public class AlarmPreference {
 		ALARM_REPEAT,
 		ALARM_TONE,
 		ALARM_VIBRATE,
-		ALARM_DIFFICULTY
+		ALARM_DIFFICULTY,
+		ALARM_DURATION
 	}
 	
 	public enum Type{		
